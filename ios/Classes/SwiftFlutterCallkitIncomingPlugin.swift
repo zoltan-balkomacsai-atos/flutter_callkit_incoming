@@ -641,8 +641,14 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
                 action.fulfill()
             }
         }else {
+            let callData;
+            if call != nil {
+                callData = call.data
+            } else {
+                callData = self.data
+            }
             self.answerCall = nil
-            sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ENDED, call.data.toJSON())
+            sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ENDED, callData?.toJSON())
             if let appDelegate = UIApplication.shared.delegate as? CallkitIncomingAppDelegate {
                 appDelegate.onEnd(call, action)
             } else {
@@ -734,9 +740,8 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         configureAudioSession()
 
         self.sendEvent(
-            SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_TOGGLE_AUDIO_SESSION, 
-            ["isActivate": true].merging(self.data?.toJSON() ?? [:]) 
-            { (current, _) in current}
+            SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_TOGGLE_AUDIO_SESSION,
+            ["isActivate": true].merging(self.data?.toJSON() ?? [:], uniquingKeysWith: { (current, _) in current })
         )
     }
     
