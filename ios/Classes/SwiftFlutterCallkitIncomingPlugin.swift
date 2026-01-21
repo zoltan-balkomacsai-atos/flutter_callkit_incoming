@@ -625,13 +625,13 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
             if(self.answerCall == nil && self.outgoingCall == nil){
                 sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_TIMEOUT, self.data?.toJSON())
             } else {
-                sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ENDED, self.data?.toJSON())
+                sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ENDED, call.data?.toJSON())
             }
             action.fail()
             return
         }
         call.endCall()
-        self.callManager.removeCall(call)
+        //self.callManager.removeCall(call)
         if (self.answerCall == nil && self.outgoingCall == nil) {
             sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_DECLINE, self.data?.toJSON())
             if let appDelegate = UIApplication.shared.delegate as? CallkitIncomingAppDelegate {
