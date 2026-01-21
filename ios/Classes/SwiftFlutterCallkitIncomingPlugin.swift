@@ -507,16 +507,17 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         if data?.configureAudioSession != false {
             let session = AVAudioSession.sharedInstance()
             do{
-                try session.setCategory(AVAudioSession.Category.playAndRecord, options: [
-                    .allowBluetoothA2DP,
-                    .duckOthers,
-                    .allowBluetooth,
-                ])
-                
-                try session.setMode(self.getAudioSessionMode(data?.audioSessionMode))
+                if (session.category == .playAndRecord 
+                && session.categoryOptions.contains([.defaultToSpeaker, .mixWithOthers])) {
+                    print("Category already configured")
+                } else {
+                    try session.setCategory(AVAudioSession.Category.playAndRecord, 
+                    options: [.defaultToSpeaker, .mixWithOthers])
+                }
+                //try session.setMode(self.getAudioSessionMode(data?.audioSessionMode))
                 try session.setActive(data?.audioSessionActive ?? true)
-                try session.setPreferredSampleRate(data?.audioSessionPreferredSampleRate ?? 44100.0)
-                try session.setPreferredIOBufferDuration(data?.audioSessionPreferredIOBufferDuration ?? 0.005)
+                //try session.setPreferredSampleRate(data?.audioSessionPreferredSampleRate ?? 44100.0)
+                //try session.setPreferredIOBufferDuration(data?.audioSessionPreferredIOBufferDuration ?? 0.005)
             }catch{
                 print(error)
             }
@@ -732,7 +733,11 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         sendDefaultAudioInterruptionNotificationToStartAudioResource()
         configureAudioSession()
 
-        self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_TOGGLE_AUDIO_SESSION, [ "isActivate": true ])
+        self.sendEvent(
+            SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_TOGGLE_AUDIO_SESSION, 
+            ["isActivate": true].merging(self.data?.toJSON() ?? [:]) 
+            { (current, _) in current}
+        )
     }
     
     public func provider(_ provider: CXProvider, didDeactivate audioSession: AVAudioSession) {
