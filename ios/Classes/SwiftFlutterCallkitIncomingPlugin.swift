@@ -641,7 +641,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
                 action.fulfill()
             }
         }else {
-            let callData;
+            let callData: Data?
             if call != nil {
                 callData = call.data
             } else {
@@ -739,9 +739,13 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         sendDefaultAudioInterruptionNotificationToStartAudioResource()
         configureAudioSession()
 
+        var eventData: [String: Any?] = ["isActivate": true]
+        if let dataJSON = self.data?.toJSON() {
+            eventData.merge(dataJSON) { (current, _) in current }
+        }
         self.sendEvent(
             SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_TOGGLE_AUDIO_SESSION,
-            ["isActivate": true].merging(self.data?.toJSON() ?? [:], uniquingKeysWith: { (current, _) in current })
+            eventData
         )
     }
     
